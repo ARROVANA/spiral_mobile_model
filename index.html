@@ -1,0 +1,1099 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Фрактальная спираль культурного развития</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            font-family: 'Arial', sans-serif;
+            color: white;
+            overflow-x: auto;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #4facfe;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 0 0 20px rgba(79, 172, 254, 0.5);
+        }
+        
+        .canvas-container {
+            background: radial-gradient(circle, #0f3460, #16213e);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        canvas {
+            display: block;
+            margin: 0 auto;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.02);
+        }
+        
+        .legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .legend-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease;
+        }
+        
+        .legend-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .attractor {
+            border-left-color: #ff6b6b;
+        }
+        
+        .bifurcation {
+            border-left-color: #45b7d1;
+        }
+        
+        .equifinality {
+            border-left-color: #71d145;
+        }
+        
+        .legend-title {
+            font-weight: bold;
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .color-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        button {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.5);
+        }
+        
+        .speed-controls {
+            text-align: center;
+            margin: 20px 0;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .speed-controls h3 {
+            color: #4facfe;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        
+        .speed-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .speed-btn {
+            background: linear-gradient(45deg, #6c757d, #495057);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            min-width: 120px;
+        }
+        
+        .speed-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+        }
+        
+        .speed-btn.active {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+        }
+        
+        .speed-btn.active:hover {
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.6);
+        }
+        
+        .description {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .phase-indicator {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+
+        /* МОБИЛЬНАЯ АДАПТАЦИЯ */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                font-size: 14px;
+            }
+            
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 20px;
+            }
+            
+            .canvas-container {
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            
+            canvas {
+                width: 100% !important;
+                height: auto !important;
+                max-width: 350px;
+                max-height: 280px;
+            }
+            
+            .controls {
+                margin: 20px 0;
+            }
+            
+            button {
+                padding: 12px 18px;
+                font-size: 14px;
+                margin: 8px 4px;
+                display: inline-block;
+                min-width: 90px;
+            }
+            
+            .speed-controls {
+                margin: 15px 0;
+                padding: 15px;
+            }
+            
+            .speed-controls h3 {
+                font-size: 1em;
+                margin-bottom: 10px;
+            }
+            
+            .speed-buttons {
+                flex-direction: column;
+                gap: 10px;
+                align-items: center;
+            }
+            
+            .speed-btn {
+                min-width: 150px;
+                width: 90%;
+                max-width: 200px;
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+            
+            .legend {
+                grid-template-columns: 1fr;
+                gap: 15px;
+                margin-top: 20px;
+            }
+            
+            .legend-item {
+                padding: 15px;
+            }
+            
+            .legend-title {
+                font-size: 1em;
+            }
+            
+            .description {
+                padding: 20px;
+                margin-top: 15px;
+            }
+            
+            .description h3 {
+                font-size: 1.1em;
+            }
+            
+            .description ul {
+                padding-left: 20px;
+            }
+            
+            .phase-indicator {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 11px;
+                max-width: 200px;
+                word-wrap: break-word;
+            }
+        }
+
+        /* Для очень маленьких экранов */
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .container {
+                max-width: 100%;
+                margin: 0;
+            }
+            
+            h1 {
+                font-size: 1.4em;
+                margin-bottom: 15px;
+            }
+            
+            .canvas-container {
+                padding: 10px;
+            }
+            
+            canvas {
+                max-width: 300px;
+                max-height: 240px;
+            }
+            
+            button {
+                font-size: 12px;
+                padding: 10px 14px;
+                margin: 5px 2px;
+                min-width: 80px;
+            }
+            
+            .speed-btn {
+                font-size: 12px;
+                padding: 10px 16px;
+                min-width: 140px;
+            }
+            
+            .legend-item {
+                padding: 12px;
+            }
+            
+            .legend-title {
+                font-size: 0.9em;
+            }
+            
+            .description {
+                padding: 15px;
+            }
+            
+            .description h3 {
+                font-size: 1em;
+            }
+            
+            .description p, .description li {
+                font-size: 13px;
+                line-height: 1.4;
+            }
+            
+            .phase-indicator {
+                font-size: 10px;
+                padding: 6px 10px;
+                max-width: 150px;
+            }
+        }
+
+        /* Поддержка touch событий */
+        button {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        /* Убираем hover эффекты на touch устройствах */
+        @media (hover: none) {
+            button:hover {
+                transform: none;
+                box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+            }
+            
+            .speed-btn:hover {
+                transform: none;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            }
+            
+            .speed-btn.active:hover {
+                box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+            }
+            
+            .legend-item:hover {
+                transform: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Фрактальная спираль культурного развития</h1>
+        
+        <div class="canvas-container">
+            <div class="phase-indicator" id="phaseIndicator">Фаза: Инициализация</div>
+
+            <canvas id="spiralCanvas" width="800" height="600"></canvas>
+        </div>
+        
+        <div class="controls">
+            <button onclick="startAnimation()">Запустить анимацию</button>
+            <button onclick="resetAnimation()">Сброс</button>
+            <button onclick="togglePause()">Пауза/Продолжить</button>
+        </div>
+        
+        <div class="speed-controls">
+            <h3>Управление скоростью:</h3>
+            <div class="speed-buttons">
+                <button onclick="setSpeed(1)" class="speed-btn active" id="speed-1x">1x (стандарт)</button>
+                <button onclick="setSpeed(1.5)" class="speed-btn" id="speed-1_5x">1.5x</button>
+                <button onclick="setSpeed(2)" class="speed-btn" id="speed-2x">2x</button>
+            </div>
+        </div>
+        
+        <div class="legend">
+            <div class="legend-item attractor">
+                <div class="legend-title">
+                    <div class="color-dot" style="background-color: #ff6b6b;"></div>
+                    Аттрактор
+                </div>
+                <p>Внешний вызов или стимул, который притягивает культуру к изменению. Это может быть технологический прорыв, социальный кризис, или контакт с другой культурой.</p>
+            </div>
+            
+            <div class="legend-item bifurcation">
+                <div class="legend-title">
+                    <div class="color-dot" style="background-color: #45b7d1;"></div>
+                    Бифуркация
+                </div>
+                <p>Множественные пути адаптации и изменения. Культура "ветвится", исследуя различные варианты ответа на вызов. Некоторые пути оказываются успешными, другие отмирают.</p>
+            </div>
+            
+            <div class="legend-item equifinality">
+                <div class="legend-title">
+                    <div class="color-dot" style="background-color: #71d145;"></div>
+                    Эквифинальность
+                </div>
+                <p>Стабилизация и закрепление успешных адаптаций. Разные пути приводят к схожему результату, который становится новой нормой и основой для следующего цикла.</p>
+            </div>
+        </div>
+        
+        <div class="description">
+            <h3>Концепция фрактальной спирали</h3>
+            <p>Эта модель показывает культурное развитие как самоподобный процесс, где каждый виток спирали содержит полный цикл адаптации. Ключевые особенности модели:</p>
+            <ul>
+                <li><strong>Нет фиксированного конца</strong> — процесс развития бесконечен</li>
+                <li><strong>Каждый цикл уникален</strong>, но структурно подобен предыдущим</li>
+                <li><strong>Масштаб увеличивается</strong> — каждый новый виток охватывает более сложные процессы</li>
+                <li><strong>Множественность путей</strong> — на каждом уровне возможны различные варианты развития</li>
+            </ul>
+            <p>Красные точки (аттракторы) возникают с самого начала культурного развития, создавая синие ветвления (бифуркации), которые затем стабилизируются в зеленые области (эквифинальность). <strong>Зеленые элементы появляются, проходят анимацию роста и движения к своим окончательным позициям, затем навсегда остаются как постоянный культурный слой, соединяясь в единые линии.</strong></p>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('spiralCanvas');
+        const ctx = canvas.getContext('2d');
+        const phaseIndicator = document.getElementById('phaseIndicator');
+        
+        let animationId;
+        let time = 0;
+        let isPaused = false;
+        let currentPhase = 'Инициализация';
+        let frameCounter = 0;
+        let speedMultiplier = 1;
+        
+        const MAX_ELEMENTS = {
+            attractors: 15,
+            bifurcations: 40,
+            equifinalities: 300,
+            permanent: 300
+        };
+        
+        const centerX = canvas.width / 2;
+        const centerY = canvas.height / 2;
+        
+        const colors = {
+            attractor: '#ff6b6b',
+            bifurcation: '#45b7d1',
+            equifinality: '#71d145',
+            spiral: '#ffffff',
+            background: 'rgba(15, 52, 96, 0.1)'
+        };
+        
+        let attractors = [];
+        let bifurcations = [];
+        let equifinalities = [];
+        let occupiedLevels = new Set();
+        let spiralLayers = {};
+        let lastAttractorTime = 0;
+        
+        function getSpiralLayer(radius) {
+            return Math.floor((radius - 30) / 50);
+        }
+        
+        function getLayerRadius(layer) {
+            return 30 + layer * 50 + Math.random() * 30 - 15;
+        }
+        
+        function canPlaceAttractorInLayer(layer, targetAngle) {
+            if (!spiralLayers[layer]) {
+                spiralLayers[layer] = [];
+                return true;
+            }
+            
+            const minAngleDistance = (Math.PI * 2) / 6;
+            
+            for (let existingAngle of spiralLayers[layer]) {
+                let angleDiff = Math.abs(targetAngle - existingAngle);
+                angleDiff = Math.min(angleDiff, Math.PI * 2 - angleDiff);
+                
+                if (angleDiff < minAngleDistance) {
+                    return false;
+                }
+            }
+            
+            return spiralLayers[layer].length < 4;
+        }
+        
+        function placeAttractorUniformly() {
+            const currentTime = time;
+            const timeSinceLastAttractor = currentTime - lastAttractorTime;
+            
+            const minInterval = Math.max(20, Math.floor(60 / speedMultiplier));
+            if (timeSinceLastAttractor < minInterval) {
+                return false;
+            }
+            
+            const targetLayer = Math.floor(currentTime / Math.floor(120 / speedMultiplier)) + 1;
+            const maxAttempts = 10;
+            
+            for (let attempt = 0; attempt < maxAttempts; attempt++) {
+                const angle = (Math.random() * Math.PI * 2);
+                
+                if (canPlaceAttractorInLayer(targetLayer, angle)) {
+                    const radius = getLayerRadius(targetLayer);
+                    
+                    if (isPositionAvailable(angle, radius, 100)) {
+                        attractors.push(new Attractor(angle, radius, currentTime));
+                        
+                        if (!spiralLayers[targetLayer]) {
+                            spiralLayers[targetLayer] = [];
+                        }
+                        spiralLayers[targetLayer].push(angle);
+                        
+                        lastAttractorTime = currentTime;
+                        return true;
+                    }
+                }
+            }
+            
+            for (let layerOffset = 1; layerOffset <= 2; layerOffset++) {
+                for (let direction of [-1, 1]) {
+                    const checkLayer = targetLayer + (direction * layerOffset);
+                    if (checkLayer < 0) continue;
+                    
+                    for (let attempt = 0; attempt < 5; attempt++) {
+                        const angle = (Math.random() * Math.PI * 2);
+                        
+                        if (canPlaceAttractorInLayer(checkLayer, angle)) {
+                            const radius = getLayerRadius(checkLayer);
+                            
+                            if (isPositionAvailable(angle, radius, 100)) {
+                                attractors.push(new Attractor(angle, radius, currentTime));
+                                
+                                if (!spiralLayers[checkLayer]) {
+                                    spiralLayers[checkLayer] = [];
+                                }
+                                spiralLayers[checkLayer].push(angle);
+                                
+                                lastAttractorTime = currentTime;
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return false;
+        }
+
+        function drawWavyBoundaries(timeOffset = 0) {
+            const waves = 3;
+            const amplitude = 8;
+            const segments = 60;
+            const baseRadius = 500;
+
+            for (let i = 0; i < 3; i++) {
+                const angleStart = i * 2 * Math.PI / 3;
+                const angleEnd = angleStart + 2 * Math.PI / 3;
+
+                ctx.beginPath();
+                for (let j = 0; j <= segments; j++) {
+                    const t = j / segments;
+                    const angle = angleStart + (angleEnd - angleStart) * t;
+                    const wave = Math.sin(time * 0.0325 * speedMultiplier + t * waves * Math.PI * 2 + i) * amplitude;
+                    const r = baseRadius + wave;
+
+                    const x = centerX + Math.cos(angle) * r;
+                    const y = centerY + Math.sin(angle) * r;
+                    if (j === 0) {
+                        ctx.moveTo(x, y);
+                    } else {
+                        ctx.lineTo(x, y);
+                    }
+                }
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.lineWidth = 1;
+                ctx.stroke();
+            }
+        }
+
+        function getSpiralLevel(radius) {
+            return Math.floor(radius / 45);
+        }
+        
+        function isLevelOccupied(radius) {
+            const level = getSpiralLevel(radius);
+            return occupiedLevels.has(level);
+        }
+        
+        function markLevelOccupied(radius) {
+            const level = getSpiralLevel(radius);
+            occupiedLevels.add(level);
+        }
+        
+        function isPositionAvailable(angle, radius, minDistance = 120) {
+            return !equifinalities.some(eq => {
+                const eqX = centerX + Math.cos(eq.angle) * eq.radius;
+                const eqY = centerY + Math.sin(eq.angle) * eq.radius;
+                const newX = centerX + Math.cos(angle) * radius;
+                const newY = centerY + Math.sin(angle) * radius;
+                
+                const distance = Math.sqrt(
+                    Math.pow(eqX - newX, 2) + Math.pow(eqY - newY, 2)
+                );
+                
+                return distance < minDistance;
+            });
+        }
+        
+        function findAvailablePosition(baseRadius, attempts = 30) {
+            for (let i = 0; i < attempts; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const radius = baseRadius + (Math.random() - 0.5) * 30;
+                
+                if (isPositionAvailable(angle, radius)) {
+                    return { angle, radius };
+                }
+            }
+            
+            for (let radiusOffset = 80; radiusOffset <= 200; radiusOffset += 40) {
+                for (let i = 0; i < 20; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const radius = baseRadius + radiusOffset + Math.random() * 30;
+                    
+                    if (isPositionAvailable(angle, radius)) {
+                        return { angle, radius };
+                    }
+                }
+            }
+            
+            const angle = Math.random() * Math.PI * 2;
+            const radius = baseRadius + 250 + Math.random() * 50;
+            return { angle, radius };
+        }
+        
+        function canAttractorAppearInRadius(radius, tolerance = 50) {
+            const conflictingEquifinalities = equifinalities.filter(eq => 
+                Math.abs(eq.radius - radius) < tolerance
+            );
+            
+            if (conflictingEquifinalities.length === 0) return true;
+            
+            const occupiedAngles = conflictingEquifinalities.map(eq => eq.angle);
+            const minAngleGap = Math.PI / 3;
+            
+            for (let testAngle = 0; testAngle < Math.PI * 2; testAngle += 0.1) {
+                const hasConflict = occupiedAngles.some(occupiedAngle => {
+                    let angleDiff = Math.abs(testAngle - occupiedAngle);
+                    angleDiff = Math.min(angleDiff, Math.PI * 2 - angleDiff);
+                    return angleDiff < minAngleGap;
+                });
+                
+                if (!hasConflict) {
+                    return true;
+                }
+            }
+            
+            return false;
+        }
+        
+        class Attractor {
+            constructor(angle, radius, time) {
+                this.angle = angle;
+                this.radius = radius;
+                this.time = time;
+                this.life = 0;
+                this.maxLife = 310;
+                this.size = 0;
+                this.maxSize = 8;
+                this.hasBifurcated = false;
+                this.bifurcationStartTime = 0;
+                this.bifurcationDelay = 185;
+            }
+            
+            update() {
+                this.life++;
+                this.size = Math.min(this.maxSize, (this.life / 30) * this.maxSize * speedMultiplier);
+                
+                if (this.life > (45 / speedMultiplier) && !this.hasBifurcated && Math.random() < (0.455 * speedMultiplier)) {
+                    this.createBifurcations();
+                    this.hasBifurcated = true;
+                    this.bifurcationStartTime = this.life;
+                }
+                
+                if (this.hasBifurcated && (this.life - this.bifurcationStartTime) > (this.bifurcationDelay / speedMultiplier)) {
+                    return false;
+                }
+                
+                return this.life < (this.maxLife / speedMultiplier);
+            }
+            
+            createBifurcations() {
+                const numBranches = Math.floor(Math.random() * 4) + 3;
+                for (let i = 0; i < numBranches; i++) {
+                    const branchAngle = this.angle + (Math.random() - 0.5) * Math.PI * 0.6;
+                    bifurcations.push(new Bifurcation(branchAngle, this.radius, this.time, this));
+                }
+            }
+            
+            draw() {
+                const x = centerX + Math.cos(this.angle) * this.radius;
+                const y = centerY + Math.sin(this.angle) * this.radius;
+                
+                const pulse = 0.8 + 0.2 * Math.sin(this.life * 0.195 * speedMultiplier);
+                const currentSize = this.size * pulse;
+                
+                ctx.beginPath();
+                ctx.arc(x, y, currentSize, 0, Math.PI * 2);
+                ctx.fillStyle = colors.attractor;
+                ctx.fill();
+                
+                ctx.beginPath();
+                ctx.arc(x, y, currentSize * 2, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 107, 107, ${0.3 * pulse})`;
+                ctx.fill();
+                
+                if (this.hasBifurcated) {
+                    const fadeProgress = (this.life - this.bifurcationStartTime) / this.bifurcationDelay;
+                    const fadeOpacity = Math.max(0, 1 - fadeProgress);
+                    
+                    ctx.beginPath();
+                    ctx.arc(x, y, currentSize, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255, 107, 107, ${fadeOpacity})`;
+                    ctx.fill();
+                }
+            }
+        }
+        
+        class Bifurcation {
+            constructor(angle, radius, time, parent) {
+                this.angle = angle;
+                this.radius = radius;
+                this.time = time;
+                this.parent = parent;
+                this.life = 0;
+                this.maxLife = 185;
+                this.length = 0;
+                this.maxLength = 60;
+                this.hasCreatedEquifinality = false;
+            }
+            
+            update() {
+                this.life++;
+                this.length = Math.min(this.maxLength, (this.life / 60) * this.maxLength * speedMultiplier);
+                
+                if (this.life > (110 / speedMultiplier) && !this.hasCreatedEquifinality && Math.random() < (0.52 * speedMultiplier)) {
+                    this.createEquifinality();
+                    this.hasCreatedEquifinality = true;
+                }
+                
+                return this.life < (this.maxLife / speedMultiplier);
+            }
+            
+            createEquifinality() {
+                const finalAngle = this.angle;
+                const finalRadius = this.radius + this.length;
+                
+                if (this.isEquifinalityPositionValid(finalAngle, finalRadius)) {
+                    equifinalities.push(new Equifinality(finalAngle, finalRadius, this.time));
+                }
+            }
+            
+            isEquifinalityPositionValid(angle, radius) {
+                const newX = centerX + Math.cos(angle) * radius;
+                const newY = centerY + Math.sin(angle) * radius;
+                const newElementRadius = 12;
+                
+                return !equifinalities.some(eq => {
+                    const eqX = centerX + Math.cos(eq.angle) * eq.radius;
+                    const eqY = centerY + Math.sin(eq.angle) * eq.radius;
+                    const eqElementRadius = eq.maxSize;
+                    
+                    const distance = Math.sqrt(
+                        Math.pow(eqX - newX, 2) + Math.pow(eqY - newY, 2)
+                    );
+                    
+                    const maxOverlap = 0.3;
+                    const minDistance = (newElementRadius + eqElementRadius) * (1 - maxOverlap);
+                    
+                    return distance < minDistance;
+                });
+            }
+            
+            draw() {
+                const startX = centerX + Math.cos(this.parent.angle) * this.parent.radius;
+                const startY = centerY + Math.sin(this.parent.angle) * this.parent.radius;
+                const endX = centerX + Math.cos(this.angle) * (this.radius + this.length);
+                const endY = centerY + Math.sin(this.angle) * (this.radius + this.length);
+                
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(endX, endY);
+                ctx.strokeStyle = colors.bifurcation;
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(endX, endY);
+                ctx.strokeStyle = `rgba(69, 183, 209, 0.3)`;
+                ctx.lineWidth = 4;
+                ctx.stroke();
+            }
+        }
+        
+        class Equifinality {
+            constructor(angle, radius, time) {
+                this.angle = angle;
+                this.radius = radius;
+                this.time = time;
+                this.life = 0;
+                this.size = 0;
+                this.maxSize = 12;
+                this.isAnimating = true;
+                this.isStabilized = false;
+                this.targetAngle = angle;
+                this.animationPhase = 'growing';
+                this.growthDuration = 90;
+                this.movementDuration = 60;
+            }
+            
+            update() {
+                this.life++;
+                
+                if (this.animationPhase === 'growing') {
+                    this.size = Math.min(this.maxSize, (this.life / this.growthDuration) * this.maxSize * speedMultiplier);
+                    
+                    if (this.life >= (this.growthDuration / speedMultiplier)) {
+                        this.animationPhase = 'moving';
+                        this.movementStartLife = this.life;
+                        this.targetAngle = this.normalizeToCircle(this.angle);
+                    }
+                } else if (this.animationPhase === 'moving') {
+                    const movementProgress = (this.life - this.movementStartLife) / (this.movementDuration / speedMultiplier);
+                    if (movementProgress < 1) {
+                        this.angle = this.lerp(this.angle, this.targetAngle, movementProgress * 0.065 * speedMultiplier);
+                    } else {
+                        this.animationPhase = 'stabilized';
+                        this.isStabilized = true;
+                        this.isAnimating = false;
+                        this.angle = this.targetAngle;
+                    }
+                } else if (this.animationPhase === 'stabilized') {
+                    if (Math.random() < (0.013 * speedMultiplier)) {
+                        this.createNewCycle();
+                    }
+                }
+                
+                return true;
+            }
+            
+            normalizeToCircle(angle) {
+                const segments = 16;
+                const segmentSize = (Math.PI * 2) / segments;
+                return Math.round(angle / segmentSize) * segmentSize;
+            }
+            
+            lerp(start, end, t) {
+                return start + (end - start) * t;
+            }
+            
+            createNewCycle() {
+                if (this.isStabilized && Math.random() < (0.013 * speedMultiplier)) {
+                    placeAttractorUniformly();
+                }
+            }
+            
+            draw() {
+                const x = centerX + Math.cos(this.angle) * this.radius;
+                const y = centerY + Math.sin(this.angle) * this.radius;
+                
+                let opacity = 0.9;
+                
+                if (this.isStabilized) {
+                    ctx.beginPath();
+                    ctx.arc(x, y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(113, 209, 69, ${opacity})`;
+                    ctx.fill();
+                    
+                    ctx.beginPath();
+                    ctx.arc(x, y, this.size * 0.8, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(113, 209, 69, 1)`;
+                    ctx.fill();
+                    
+                    for (let i = 1; i <= 2; i++) {
+                        ctx.beginPath();
+                        ctx.arc(x, y, this.size + i * 4, 0, Math.PI * 2);
+                        ctx.strokeStyle = `rgba(113, 209, 69, ${0.4 / i})`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                    
+                    this.drawConnectionLines();
+                    
+                } else {
+                    const pulseOpacity = this.animationPhase === 'moving' ? 
+                        0.5 + 0.3 * Math.sin(this.life * 0.195 * speedMultiplier) : opacity;
+                    
+                    ctx.beginPath();
+                    ctx.arc(x, y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(113, 209, 69, ${pulseOpacity})`;
+                    ctx.fill();
+                    
+                    if (this.animationPhase === 'moving') {
+                        ctx.beginPath();
+                        ctx.arc(x, y, this.size + 8, 0, Math.PI * 2);
+                        ctx.strokeStyle = `rgba(113, 209, 69, 0.3)`;
+                        ctx.lineWidth = 2;
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            drawConnectionLines() {
+                const nearbyElements = equifinalities.filter(e => 
+                    e !== this && 
+                    e.isStabilized && 
+                    Math.abs(e.radius - this.radius) < 20
+                );
+                
+                const currentX = centerX + Math.cos(this.angle) * this.radius;
+                const currentY = centerY + Math.sin(this.angle) * this.radius;
+                
+                nearbyElements.forEach(element => {
+                    const elementX = centerX + Math.cos(element.angle) * element.radius;
+                    const elementY = centerY + Math.sin(element.angle) * element.radius;
+                    
+                    const distance = Math.sqrt(
+                        Math.pow(elementX - currentX, 2) + Math.pow(elementY - currentY, 2)
+                    );
+                    
+                    if (distance < 100) {
+                        ctx.beginPath();
+                        ctx.moveTo(currentX, currentY);
+                        ctx.lineTo(elementX, elementY);
+                        ctx.strokeStyle = `rgba(113, 209, 69, 0.2)`;
+                        ctx.lineWidth = 1;
+                        ctx.stroke();
+                    }
+                });
+            }
+        }
+        
+        function drawSpiral() {
+            ctx.beginPath();
+            ctx.strokeStyle = colors.spiral;
+            ctx.lineWidth = 1;
+            
+            const maxSpiral = Math.min(time * 1.3 * speedMultiplier, 800);
+            for (let i = 0; i < maxSpiral; i++) {
+                const angle = i * 0.1;
+                const radius = 30 + i * 0.5;
+                const x = centerX + Math.cos(angle) * radius;
+                const y = centerY + Math.sin(angle) * radius;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            
+            ctx.stroke();
+        }
+        
+        function updatePhase() {
+            const totalElements = attractors.length + bifurcations.length + equifinalities.length;
+            const stabilizedCount = equifinalities.filter(e => e.isStabilized).length;
+            
+            if (totalElements === 0) {
+                currentPhase = 'Инициализация';
+            } else if (attractors.length > bifurcations.length && attractors.length > equifinalities.length) {
+                currentPhase = 'Аттракторы доминируют';
+            } else if (bifurcations.length > stabilizedCount) {
+                currentPhase = 'Активная бифуркация';
+            } else {
+                currentPhase = `Стабилизация (${stabilizedCount} закреплено)`;
+            }
+            
+            phaseIndicator.textContent = `Фаза: ${currentPhase} | Элементов: ${totalElements}`;
+        }
+        
+        function animate() {
+            if (!isPaused) {
+                frameCounter++;
+                
+                if (frameCounter % Math.max(1, Math.floor(4 / speedMultiplier)) === 0) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    
+                    drawWavyBoundaries();
+                    drawSpiral();
+                    
+                    if (time === 0) {
+                        attractors.push(new Attractor(0, 40, time));
+                        spiralLayers[0] = [0];
+                        lastAttractorTime = 0;
+                    }
+                    
+                    if (time > 30) {
+                        placeAttractorUniformly();
+                    }
+                    
+                    attractors = attractors.filter(a => {
+                        const alive = a.update();
+                        if (alive) a.draw();
+                        return alive;
+                    });
+                    
+                    if (attractors.length > MAX_ELEMENTS.attractors) {
+                        attractors = attractors.slice(-MAX_ELEMENTS.attractors);
+                    }
+                    
+                    bifurcations = bifurcations.filter(b => {
+                        const alive = b.update();
+                        if (alive) b.draw();
+                        return alive;
+                    });
+                    
+                    if (bifurcations.length > MAX_ELEMENTS.bifurcations) {
+                        bifurcations = bifurcations.slice(-MAX_ELEMENTS.bifurcations);
+                    }
+                    
+                    equifinalities.forEach(e => {
+                        e.update();
+                        e.draw();
+                    });
+                    
+                    updatePhase();
+                    time++;
+                }
+            }
+            
+            animationId = requestAnimationFrame(animate);
+        }
+        
+        function startAnimation() {
+            if (!animationId) {
+                animate();
+            }
+            isPaused = false;
+        }
+        
+        function resetAnimation() {
+            cancelAnimationFrame(animationId);
+            animationId = null;
+            time = 0;
+            frameCounter = 0;
+            isPaused = false;
+            attractors = [];
+            bifurcations = [];
+            equifinalities = [];
+            occupiedLevels.clear();
+            spiralLayers = {};
+            lastAttractorTime = 0;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            phaseIndicator.textContent = 'Фаза: Инициализация | Элементов: 0';
+        }
+        
+        function togglePause() {
+            isPaused = !isPaused;
+        }
+        
+        function setSpeed(multiplier) {
+            speedMultiplier = multiplier;
+            
+            document.querySelectorAll('.speed-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            const activeBtn = document.getElementById(`speed-${multiplier}x`.replace('.', '_'));
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+        }
+        
+        drawWavyBoundaries();
+        drawSpiral();
+    </script>
+</body>
+</html>
